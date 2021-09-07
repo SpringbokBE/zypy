@@ -1,0 +1,105 @@
+// ==============================================================
+// Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2020.2 (64-bit)
+// Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+// ==============================================================
+#ifndef XUFUNC_CALL_F4_H
+#define XUFUNC_CALL_F4_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/***************************** Include Files *********************************/
+#ifndef __linux__
+#include "xil_types.h"
+#include "xil_assert.h"
+#include "xstatus.h"
+#include "xil_io.h"
+#else
+#include <stdint.h>
+#include <assert.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <stddef.h>
+#endif
+#include "xufunc_call_f4_hw.h"
+
+/**************************** Type Definitions ******************************/
+#ifdef __linux__
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+#else
+typedef struct {
+    u16 DeviceId;
+    u32 Control_BaseAddress;
+} XUfunc_call_f4_Config;
+#endif
+
+typedef struct {
+    u64 Control_BaseAddress;
+    u32 IsReady;
+} XUfunc_call_f4;
+
+typedef u32 word_type;
+
+/***************** Macros (Inline Functions) Definitions *********************/
+#ifndef __linux__
+#define XUfunc_call_f4_WriteReg(BaseAddress, RegOffset, Data) \
+    Xil_Out32((BaseAddress) + (RegOffset), (u32)(Data))
+#define XUfunc_call_f4_ReadReg(BaseAddress, RegOffset) \
+    Xil_In32((BaseAddress) + (RegOffset))
+#else
+#define XUfunc_call_f4_WriteReg(BaseAddress, RegOffset, Data) \
+    *(volatile u32*)((BaseAddress) + (RegOffset)) = (u32)(Data)
+#define XUfunc_call_f4_ReadReg(BaseAddress, RegOffset) \
+    *(volatile u32*)((BaseAddress) + (RegOffset))
+
+#define Xil_AssertVoid(expr)    assert(expr)
+#define Xil_AssertNonvoid(expr) assert(expr)
+
+#define XST_SUCCESS             0
+#define XST_DEVICE_NOT_FOUND    2
+#define XST_OPEN_DEVICE_FAILED  3
+#define XIL_COMPONENT_IS_READY  1
+#endif
+
+/************************** Function Prototypes *****************************/
+#ifndef __linux__
+int XUfunc_call_f4_Initialize(XUfunc_call_f4 *InstancePtr, u16 DeviceId);
+XUfunc_call_f4_Config* XUfunc_call_f4_LookupConfig(u16 DeviceId);
+int XUfunc_call_f4_CfgInitialize(XUfunc_call_f4 *InstancePtr, XUfunc_call_f4_Config *ConfigPtr);
+#else
+int XUfunc_call_f4_Initialize(XUfunc_call_f4 *InstancePtr, const char* InstanceName);
+int XUfunc_call_f4_Release(XUfunc_call_f4 *InstancePtr);
+#endif
+
+void XUfunc_call_f4_Start(XUfunc_call_f4 *InstancePtr);
+u32 XUfunc_call_f4_IsDone(XUfunc_call_f4 *InstancePtr);
+u32 XUfunc_call_f4_IsIdle(XUfunc_call_f4 *InstancePtr);
+u32 XUfunc_call_f4_IsReady(XUfunc_call_f4 *InstancePtr);
+void XUfunc_call_f4_EnableAutoRestart(XUfunc_call_f4 *InstancePtr);
+void XUfunc_call_f4_DisableAutoRestart(XUfunc_call_f4 *InstancePtr);
+
+void XUfunc_call_f4_Set_args(XUfunc_call_f4 *InstancePtr, u32 Data);
+u32 XUfunc_call_f4_Get_args(XUfunc_call_f4 *InstancePtr);
+
+void XUfunc_call_f4_InterruptGlobalEnable(XUfunc_call_f4 *InstancePtr);
+void XUfunc_call_f4_InterruptGlobalDisable(XUfunc_call_f4 *InstancePtr);
+void XUfunc_call_f4_InterruptEnable(XUfunc_call_f4 *InstancePtr, u32 Mask);
+void XUfunc_call_f4_InterruptDisable(XUfunc_call_f4 *InstancePtr, u32 Mask);
+void XUfunc_call_f4_InterruptClear(XUfunc_call_f4 *InstancePtr, u32 Mask);
+u32 XUfunc_call_f4_InterruptGetEnabled(XUfunc_call_f4 *InstancePtr);
+u32 XUfunc_call_f4_InterruptGetStatus(XUfunc_call_f4 *InstancePtr);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

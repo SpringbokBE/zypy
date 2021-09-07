@@ -1,0 +1,1 @@
+vivado -source build.tcl -nojournal -nolog
